@@ -1,7 +1,8 @@
 FROM php:8.1-apache
 
-# Disable conflicting MPM modules and enable mpm_prefork
-RUN a2dismod mpm_worker mpm_event || true && \
+# Fix Apache MPM configuration - completely disable all MPM modules and enable only mpm_prefork
+RUN apt-get update && apt-get install -y apache2-utils && \
+    a2dismod mpm_prefork mpm_worker mpm_event mpm_prefork_module mpm_worker_module mpm_event_module || true && \
     a2enmod mpm_prefork && \
     a2enmod rewrite
 

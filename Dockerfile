@@ -1,18 +1,19 @@
-FROM php:8.1-apache
+FROM php:8.1-cli
 
-# Install mysqli extension
-RUN docker-php-ext-install mysqli && \
-    docker-php-ext-enable mysqli
+# Install Apache and required extensions
+RUN apt-get update && apt-get install -y \
+    apache2 \
+    libapache2-mod-php8.1 \
+    && docker-php-ext-install mysqli \
+    && docker-php-ext-enable mysqli \
+    && rm -rf /var/lib/apt/lists/*
 
-# Fix MPM conflicts by removing conflicting modules from mods-enabled
-RUN rm -f /etc/apache2/mods-enabled/mpm_worker.load /etc/apache2/mods-enabled/mpm_event.load && \
-    echo "LoadModule mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so" > /etc/apache2/mods-enabled/mpm_prefork.load
+# Configure Apache with single MPM
+RUN a2dismod mpm_worker mpm_event && \
+    a2enmod mpm_prefork rewrite
 
 # Copy custom Apache configuration
 COPY apache2.conf /etc/apache2/apache2.conf
-
-# Enable rewrite module
-RUN a2enmod rewrite
 
 # Copy project files
 COPY . /var/www/html/
@@ -21,3 +22,6 @@ COPY . /var/www/html/
 RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
+
+# Start Apache
+CMD ["apache2ctl", "-D", "FOREGROUND"]

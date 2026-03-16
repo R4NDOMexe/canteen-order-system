@@ -8,18 +8,18 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable mysqli \
     && rm -rf /var/lib/apt/lists/*
 
-# Configure Apache with single MPM
-RUN a2dismod mpm_worker mpm_event && \
-    a2enmod mpm_prefork rewrite
+# Remove ALL default Apache configurations that might conflict
+RUN rm -rf /etc/apache2/sites-enabled/* /etc/apache2/conf-enabled/* /etc/apache2/mods-enabled/* && \
+    mkdir -p /etc/apache2/sites-enabled /etc/apache2/conf-enabled /etc/apache2/mods-enabled
 
-# Copy custom Apache configuration
+# Copy minimal Apache configuration
 COPY apache2.conf /etc/apache2/apache2.conf
 
 # Copy project files
 COPY . /var/www/html/
 
 # Set proper permissions
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/html /var/log/apache2
 
 EXPOSE 80
 

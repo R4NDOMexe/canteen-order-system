@@ -22,7 +22,14 @@ RUN a2enmod rewrite
 # Copy project files
 COPY . /var/www/html/
 
+# Copy startup script
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
+
+# Use custom entrypoint
+ENTRYPOINT ["/usr/local/bin/start.sh"]

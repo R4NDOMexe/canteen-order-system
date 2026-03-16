@@ -3,6 +3,9 @@ FROM php:8.1-apache
 # Install mysqli extension
 RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 
+# Remove any PHP-FPM related services that might interfere
+RUN rm -f /etc/service/php-fpm* /etc/init.d/php* 2>/dev/null || true
+
 # Disable ALL MPM modules except mpm_prefork
 RUN a2dismod mpm_worker mpm_event mpm_prefork || true
 
@@ -31,5 +34,5 @@ RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
 
-# Use custom entrypoint
+# Use custom entrypoint - this overrides everything
 ENTRYPOINT ["/usr/local/bin/start.sh"]

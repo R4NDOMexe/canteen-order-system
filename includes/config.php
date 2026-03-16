@@ -1,8 +1,4 @@
 <?php
-/**
- * Canteen System - Configuration File
- * MySQL Database Connection with Helper Functions
- */
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
@@ -20,17 +16,25 @@ define('MASTER_USERNAME', 'MASTER');
 define('MASTER_PASSWORD', 'PASSWORD');
 
 // Database Configuration - MySQL
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'canteen_system');
-define('DB_USER', 'root');
-define('DB_PASS', '');  // Add your password if you have one
+// For Railway deployment, use environment variables
+// define('DB_HOST', 'localhost');
+// define('DB_NAME', 'canteen_system');
+// define('DB_USER', 'root');
+// define('DB_PASS', '');  // Add your password if you have one
 
 // Debug mode - set to true to see SQL errors
 define('DEBUG_MODE', true);
 
 // Database Connection using MySQLi
 function getDBConnection() {
-    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    // Use Railway environment variables if available, else fallback to constants
+    $host = getenv("MYSQLHOST") ?: 'localhost';
+    $port = getenv("MYSQLPORT") ?: 3306;
+    $user = getenv("MYSQLUSER") ?: 'root';
+    $pass = getenv("MYSQLPASSWORD") ?: '';
+    $db   = getenv("MYSQLDATABASE") ?: 'canteen_system';
+    
+    $conn = new mysqli($host, $user, $pass, $db, $port);
     
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);

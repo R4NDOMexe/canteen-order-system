@@ -17,22 +17,32 @@ define('MASTER_PASSWORD', 'PASSWORD');
 
 // Database Configuration - MySQL
 // For Railway deployment, use environment variables
+// Local development fallback values:
 // define('DB_HOST', 'localhost');
 // define('DB_NAME', 'canteen_system');
 // define('DB_USER', 'root');
-// define('DB_PASS', '');  // Add your password if you have one
+// define('DB_PASS', '');
+
+// Railway Production Credentials (used as fallback if env vars not set)
+define('RAILWAY_DB_HOST', 'nozomi.proxy.rlwy.net');
+define('RAILWAY_DB_PORT', 43365);
+define('RAILWAY_DB_USER', 'root');
+define('RAILWAY_DB_PASS', 'TjwPWgbvFuqjFlZCRJjf6SccAxmKYikc');
+define('RAILWAY_DB_NAME', 'railway');
 
 // Debug mode - set to true to see SQL errors
 define('DEBUG_MODE', true);
 
 // Database Connection using MySQLi
 function getDBConnection() {
-    // Use Railway environment variables if available, else fallback to constants
-    $host = getenv("MYSQLHOST") ?: 'localhost';
-    $port = getenv("MYSQLPORT") ?: 3306;
-    $user = getenv("MYSQLUSER") ?: 'root';
-    $pass = getenv("MYSQLPASSWORD") ?: '';
-    $db   = getenv("MYSQLDATABASE") ?: 'canteen_system';
+    // Use Railway environment variables if available (set by Railway), 
+    // else fallback to Railway production credentials, 
+    // else fallback to local development
+    $host = getenv("MYSQLHOST") ?: RAILWAY_DB_HOST;
+    $port = getenv("MYSQLPORT") ?: RAILWAY_DB_PORT;
+    $user = getenv("MYSQLUSER") ?: RAILWAY_DB_USER;
+    $pass = getenv("MYSQLPASSWORD") ?: RAILWAY_DB_PASS;
+    $db   = getenv("MYSQLDATABASE") ?: RAILWAY_DB_NAME;
     
     $conn = new mysqli($host, $user, $pass, $db, $port);
     

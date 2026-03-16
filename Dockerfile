@@ -1,14 +1,14 @@
 FROM php:8.1-apache
 
-# Fix Apache MPM configuration - completely disable all MPM modules and enable only mpm_prefork
-RUN apt-get update && apt-get install -y apache2-utils && \
-    a2dismod mpm_prefork mpm_worker mpm_event mpm_prefork_module mpm_worker_module mpm_event_module || true && \
-    a2enmod mpm_prefork && \
-    a2enmod rewrite
-
 # Install mysqli extension
 RUN docker-php-ext-install mysqli && \
     docker-php-ext-enable mysqli
+
+# Copy custom Apache configuration to fix MPM conflicts
+COPY apache2.conf /etc/apache2/apache2.conf
+
+# Enable rewrite module
+RUN a2enmod rewrite
 
 # Copy project files
 COPY . /var/www/html/

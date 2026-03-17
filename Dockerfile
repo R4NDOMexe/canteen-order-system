@@ -6,7 +6,8 @@ RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 # Disable conflicting MPM modules
 RUN a2dismod mpm_worker mpm_event
 
-# Enable rewrite module
+# Enable prefork MPM
+RUN a2enmod mpm_prefork
 RUN a2enmod rewrite
 
 # Copy project files

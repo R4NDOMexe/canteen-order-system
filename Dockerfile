@@ -3,11 +3,13 @@ FROM php:8.1-apache
 # Install mysqli extension
 RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 
-# Disable conflicting MPM modules
-RUN a2dismod mpm_worker mpm_event
+# Disable ALL MPM modules first
+RUN a2dismod mpm_prefork mpm_worker mpm_event || true
 
-# Enable prefork MPM
+# Enable only prefork
 RUN a2enmod mpm_prefork
+
+# Enable rewrite module
 RUN a2enmod rewrite
 
 # Copy project files
@@ -21,5 +23,4 @@ RUN chmod +x /usr/local/bin/start.sh
 RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
-
 ENTRYPOINT ["/usr/local/bin/start.sh"]

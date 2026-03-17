@@ -1,5 +1,10 @@
 #!/bin/bash
-# Custom entrypoint script to start PHP-FPM and Apache
+set -e
+
 echo "Starting PHP-FPM and Apache server..."
+
+# Start PHP-FPM in background
 php-fpm -D
+
+# Start Apache in foreground
 apache2ctl -D FOREGROUND

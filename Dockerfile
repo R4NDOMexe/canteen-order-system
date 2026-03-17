@@ -3,11 +3,12 @@ FROM php:8.1-apache
 # Install mysqli extension
 RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 
-# Disable ALL MPM modules first
-RUN a2dismod mpm_prefork mpm_worker mpm_event || true
+# Remove conflicting MPM modules from mods-enabled
+RUN rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf
 
-# Enable only prefork
-RUN a2enmod mpm_prefork
+# Ensure only mpm_prefork is enabled
+RUN ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load && \
+    ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
 
 # Enable rewrite module
 RUN a2enmod rewrite

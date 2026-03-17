@@ -9,15 +9,19 @@ RUN apt-get update && apt-get install -y apache2 && rm -rf /var/lib/apt/lists/*
 # Enable Apache modules
 RUN a2enmod proxy proxy_fcgi rewrite
 
+# Set ServerName to suppress warnings
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 # Configure Apache to use PHP-FPM
 RUN printf '%s\n' \
-  '<IfModule mod_proxy_fcgi.c>' \
-  '    <FilesMatch "\\.php$">' \
-  '        SetHandler "proxy:unix:/run/php/php8.1-fpm.sock|fcgi://localhost/"' \
-  '    </FilesMatch>' \
-  '</IfModule>' \
-  > /etc/apache2/conf-available/docker-php.conf && \
-  a2enconf docker-php
+ '<Directory /var/www/html>' \
+ ' DirectoryIndex index.php' \
+ ' <FilesMatch "\\.php$">' \
+ ' SetHandler "proxy:unix:/run/php/php8.1-fpm.sock|fcgi://localhost/"' \
+ ' </FilesMatch>' \
+ '</Directory>' \
+ > /etc/apache2/conf-available/docker-php.conf && \
+ a2enconf docker-php
 
 # Copy project files
 COPY . /var/www/html/

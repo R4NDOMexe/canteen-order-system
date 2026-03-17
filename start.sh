@@ -1,4 +1,5 @@
 #!/bin/bash
-# Custom entrypoint script to start Apache properly
-echo "Starting Apache server..."
+# Custom entrypoint script to start PHP-FPM and Apache
+echo "Starting PHP-FPM and Apache server..."
+php-fpm &
 exec apache2-foreground

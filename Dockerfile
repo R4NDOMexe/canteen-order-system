@@ -1,17 +1,17 @@
-FROM php:8.1-apache
+FROM php:8.1-fpm
 
 # Install mysqli extension
 RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 
-# Remove conflicting MPM modules from mods-enabled
-RUN rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf
+# Install Apache
+RUN apt-get update && apt-get install -y apache2 && rm -rf /var/lib/apt/lists/*
 
-# Ensure only mpm_prefork is enabled
-RUN ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load && \
-    ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
+# Enable Apache modules
+RUN a2enmod proxy proxy_fcgi rewrite
 
-# Enable rewrite module
-RUN a2enmod rewrite
+# Copy Apache config for PHP-FPM
+COPY --from=php:8.1-fpm /etc/apache2/conf-available/docker-php.conf /etc/apache2/conf-available/docker-php.conf
+RUN a2enconf docker-php
 
 # Copy project files
 COPY . /var/www/html/
@@ -22,6 +22,9 @@ RUN chmod +x /usr/local/bin/start.sh
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html
+
+EXPOSE 80
+ENTRYPOINT ["/usr/local/bin/start.sh"]
 
 EXPOSE 80
 ENTRYPOINT ["/usr/local/bin/start.sh"]
